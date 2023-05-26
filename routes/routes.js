@@ -32,7 +32,7 @@ router.post('/createAlbum', async (req, res) => {
     console.log(req.body);
     const data = new Album({
         name: req.body.name,
-        isActive: req.body.isActive || false,
+        isActive: req.body.isActive || true,
         owner: req.body.owner
     });
 
