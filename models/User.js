@@ -12,6 +12,11 @@ const userSchema = new mongoose.Schema({
         required: true,
         type: Boolean,
         default: false
+    },
+    sessions: {
+        required: true,
+        type: [mongoose.ObjectId],
+        default: []
     }
 });
 

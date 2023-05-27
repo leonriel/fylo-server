@@ -1,11 +1,10 @@
 const express = require('express');
 const User = require('../models/User');
-const Album = require('../models/Album');
+const Session = require('../models/Session');
 
 const router = express.Router();
 
 router.post('/createUser', async (req, res) => {
-    console.log(req.body);
     const data = new User({
         username: req.body.username.toLowerCase(),
     });
@@ -19,7 +18,6 @@ router.post('/createUser', async (req, res) => {
 });
 
 router.post('/getUser', async (req, res) => {
-    console.log(req.body);
     try {
         const user = await User.findOne({username: req.body.username});
         res.status(200).json(user);
@@ -28,8 +26,25 @@ router.post('/getUser', async (req, res) => {
     }
 })
 
+router.post('/setUserActiveSession', async (req, res) => {
+    try {
+        const user = await User.updateOne({username: req.body.username}, {hasActiveSession: true});
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(400).json({message: error.message});
+    }
+})
+
+router.post('/setUsersInactiveSession', async (req, res) => {
+    try {
+        const user = await User.updateMany({username: {$in: req.body.contributors}}, {hasActiveSession: false});
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(400).json({message: error.message});
+    }
+})
+
 router.post('/updateUser', async (req, res) => {
-    console.log(req.body);
 
     const filter = {
         username: req.body.username
@@ -45,12 +60,12 @@ router.post('/updateUser', async (req, res) => {
     }
 })
 
-router.post('/createAlbum', async (req, res) => {
-    console.log(req.body);
-    const data = new Album({
+router.post('/createSession', async (req, res) => {
+    const data = new Session({
         name: req.body.name,
         isActive: req.body.isActive,
-        owner: req.body.owner
+        owner: req.body.owner,
+        contributors: [req.body.owner]
     });
 
     try {
@@ -61,28 +76,37 @@ router.post('/createAlbum', async (req, res) => {
     }
 })
 
-router.post('/getAlbums', async (req, res) => {
-    console.log(req.body);
+router.post('/getSessions', async (req, res) => {
     try {
-        const albums = await Album.find({owner: req.body.owner});
-        res.status(200).json(albums);
+        const sessions = await Session.find({owner: req.body.owner});
+        res.status(200).json(sessions);
     } catch (error) {
         res.status(400),json({message: error.message});
     }
 })
 
-router.post('/updateAlbum', async (req, res) => {
-    console.log(req.body);
-    
+router.post('/setSessionInactive', async (req, res) => {
+    const sessionId = req.body.sessionId;
+
+    try {
+        const session = await Session.findOneAndUpdate({_id: sessionId}, {isActive: false});
+        res.status(200).json(session);
+    } catch (error) {
+        res.status(400).json({message: error.message});
+    }
+})
+
+router.post('/updateSession', async (req, res) => {
+
     const filter = {
-        _id: req.body.albumId
+        sessionId: req.body.sessionId
     }
 
     const update = req.body.fields;
 
     try {
-        const album = await Album.findOneAndUpdate(filter, update);
-        res.status(200).json(album);
+        const user = await Session.findOneAndUpdate(filter, update);
+        res.status(200).json(user);
     } catch (error) {
         res.status(400).json({message: error.message});
     }

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const albumSchema = new mongoose.Schema({
+const sessionSchema = new mongoose.Schema({
     name: {
         required: true,
         type: String
@@ -8,6 +8,12 @@ const albumSchema = new mongoose.Schema({
     owner: {
         required: true,
         type: String
+    },
+    contributors: {
+        required: true,
+        type: [String], // Array of usernames
+        default: [] // Should at least contain the owner's username
+        
     },
     startDate: {
         required: true,
@@ -26,4 +32,4 @@ const albumSchema = new mongoose.Schema({
     },
 });
 
-module.exports = mongoose.model('Album', albumSchema);
+module.exports = mongoose.model('Session', sessionSchema);
