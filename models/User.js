@@ -7,6 +7,11 @@ const userSchema = new mongoose.Schema({
         index: {
             unique: true
         }
+    },
+    hasActiveSession: {
+        required: true,
+        type: Boolean,
+        default: false
     }
 });
 

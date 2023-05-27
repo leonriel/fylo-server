@@ -28,6 +28,9 @@ router.post('/getUser', async (req, res) => {
     }
 })
 
+// What's a good way to embed albums into user documents?
+// What happens if someone wants to change the name of an album?
+
 router.post('/createAlbum', async (req, res) => {
     console.log(req.body);
     const data = new Album({
