@@ -49,7 +49,7 @@ router.post('/createAlbum', async (req, res) => {
     console.log(req.body);
     const data = new Album({
         name: req.body.name,
-        isActive: req.body.isActive || true,
+        isActive: req.body.isActive,
         owner: req.body.owner
     });
 
@@ -68,6 +68,23 @@ router.post('/getAlbums', async (req, res) => {
         res.status(200).json(albums);
     } catch (error) {
         res.status(400),json({message: error.message});
+    }
+})
+
+router.post('/updateAlbum', async (req, res) => {
+    console.log(req.body);
+    
+    const filter = {
+        _id: req.body.albumId
+    }
+
+    const update = req.body.fields;
+
+    try {
+        const album = await Album.findOneAndUpdate(filter, update);
+        res.status(200).json(album);
+    } catch (error) {
+        res.status(400).json({message: error.message});
     }
 })
 
