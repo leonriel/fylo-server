@@ -26,9 +26,18 @@ router.post('/getUser', async (req, res) => {
     }
 })
 
+router.post('/addSessionToUser', async(req, res) => {
+    try {
+        const user = await User.findOneAndUpdate({username: req.body.username}, {$push: {sessions: req.body.sessionId}});
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(400).json({message: error.message});
+    }
+})
+
 router.post('/setUserActiveSession', async (req, res) => {
     try {
-        const user = await User.updateOne({username: req.body.username}, {hasActiveSession: true});
+        const user = await User.findOneAndUpdate({username: req.body.username}, {hasActiveSession: true});
         res.status(200).json(user);
     } catch (error) {
         res.status(400).json({message: error.message});
@@ -90,6 +99,15 @@ router.post('/setSessionInactive', async (req, res) => {
 
     try {
         const session = await Session.findOneAndUpdate({_id: sessionId}, {isActive: false});
+        res.status(200).json(session);
+    } catch (error) {
+        res.status(400).json({message: error.message});
+    }
+})
+
+router.post('/addUserToSession', async (req, res) => {
+    try {
+        const session = await Session.findOneAndUpdate({_id: req.body.sessionId}, {$push: {contributors: req.body.username}});
         res.status(200).json(session);
     } catch (error) {
         res.status(400).json({message: error.message});
