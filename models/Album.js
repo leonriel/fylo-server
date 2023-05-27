@@ -8,14 +8,24 @@ const albumSchema = new mongoose.Schema({
             unique: true
         }
     },
-    isActive: {
-        required: false,
-        type: Boolean,
-        default: true
-    },
     owner: {
         required: true,
         type: String
+    },
+    isActive: {
+        required: true,
+        type: Boolean,
+        default: true
+    },
+    startDate: {
+        required: true,
+        type: Date,
+        default: new Date()
+    },
+    endDate: {
+        required: true,
+        type: Date,
+        default: null
     }
 });
 
