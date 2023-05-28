@@ -87,7 +87,7 @@ router.post('/createSession', async (req, res) => {
 
 router.post('/getSessions', async (req, res) => {
     try {
-        const sessions = await Session.find({owner: req.body.owner});
+        const sessions = await Session.find({_id: {$in: req.body.sessionIds}});
         res.status(200).json(sessions);
     } catch (error) {
         res.status(400),json({message: error.message});
