@@ -28,7 +28,7 @@ router.post('/getUser', async (req, res) => {
 
 router.post('/addSessionToUser', async(req, res) => {
     try {
-        const user = await User.findOneAndUpdate({username: req.body.username}, {$push: {sessions: req.body.sessionId}});
+        const user = await User.findOneAndUpdate({username: req.body.username}, {$push: {sessions: req.body.sessionId}}, {new: true});
         res.status(200).json(user);
     } catch (error) {
         res.status(400).json({message: error.message});
