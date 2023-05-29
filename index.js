@@ -3,7 +3,8 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const routes = require('./routes/routes');
+const userRoutes = require('./routes/UserRoutes');
+const sessionRoutes = require('./routes/SessionRoutes');
 const mongoString = process.env.DATABASE_URL;
 
 mongoose.connect(mongoString);
@@ -23,7 +24,9 @@ app.use(cors());
 
 app.use(express.json());
 
-app.use('/api', routes);
+app.use('/user', userRoutes);
+
+app.use('/session', sessionRoutes);
 
 const PORT = process.env.PORT || 3000;
 
