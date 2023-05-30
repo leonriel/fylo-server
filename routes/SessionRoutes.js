@@ -23,7 +23,7 @@ sessionRouter.post('/create', async (req, res) => {
     }
 })
 
-sessionRouter.post('/getAll', async (req, res) => {
+sessionRouter.post('/getMany', async (req, res) => {
     const sessionIds = req.body.sessionIds;
 
     try {

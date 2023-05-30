@@ -17,6 +17,10 @@ const userSchema = new mongoose.Schema({
         required: true,
         type: String
     },
+    fullName: {
+        required: true,
+        type: String
+    },
     hasActiveSession: {
         required: true,
         type: Boolean,

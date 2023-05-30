@@ -8,11 +8,13 @@ userRouter.post('/create', async (req, res) => {
     const username = req.body.username.toLowerCase();
     const firstName = req.body.firstName.charAt(0).toUpperCase() + req.body.firstName.slice(1);
     const lastName = req.body.lastName.charAt(0).toUpperCase() + req.body.lastName.slice(1);
+    const fullName = firstName + " " + lastName;
 
     const data = new User({
         username: username,
         firstName: firstName,
-        lastName: lastName
+        lastName: lastName,
+        fullName: fullName
     });
 
     try {
@@ -23,12 +25,40 @@ userRouter.post('/create', async (req, res) => {
     }
 });
 
-userRouter.post('/get', async (req, res) => {
+userRouter.post('/getOne', async (req, res) => {
     const username = req.body.username;
 
     try {
         const user = await User.findOne({username: username});
         res.status(200).json(user);
+    } catch (error) {
+        res.status(400).json({message: error.message});
+    }
+})
+
+userRouter.post('/getMany', async (req, res) => {
+    const users = req.body.users;
+
+    try {
+        const returnedUsers = await User.find({username: {$in: users}});
+        res.status(200).json(returnedUsers);
+    } catch (error) {
+        res.status(400).json({message: error.message});
+    }
+})
+
+userRouter.post('/search', async (req, res) => {
+    const query = req.body.query;
+
+    try {
+        const returnedUsers = await User.find({
+            $or: [
+                {username: {$regex: query}},
+                {fullName: {$regex: query}}
+            ]
+        },
+        "username firstName lastName").limit(5);
+        res.status(200).json(returnedUsers);
     } catch (error) {
         res.status(400).json({message: error.message});
     }
