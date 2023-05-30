@@ -53,8 +53,8 @@ userRouter.post('/search', async (req, res) => {
     try {
         const returnedUsers = await User.find({
             $or: [
-                {username: {$regex: query}},
-                {fullName: {$regex: query}}
+                {username: {$regex: query, $options: 'i'}},
+                {fullName: {$regex: query, $options: 'i'}}
             ]
         },
         "username firstName lastName").limit(5);
