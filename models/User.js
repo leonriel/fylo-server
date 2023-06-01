@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const Notification = require('./Notification');
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -29,11 +28,6 @@ const userSchema = new mongoose.Schema({
     sessions: {
         required: true,
         type: [mongoose.ObjectId],
-        default: []
-    },
-    notifications: {
-        required: true,
-        type: [Notification.schema],
         default: []
     },
     friends: {

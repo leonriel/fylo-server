@@ -5,6 +5,8 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const userRoutes = require('./routes/UserRoutes');
 const sessionRoutes = require('./routes/SessionRoutes');
+const friendRequestRoutes = require('./routes/FriendRequestRoutes');
+const sessionInviteRoutes = require('./routes/SessionInviteRoutes');
 const mongoString = process.env.DATABASE_URL;
 
 mongoose.connect(mongoString);
@@ -27,6 +29,10 @@ app.use(express.json());
 app.use('/user', userRoutes);
 
 app.use('/session', sessionRoutes);
+
+app.use('/friendRequest', friendRequestRoutes);
+
+app.use('/sessionInvite', sessionInviteRoutes);
 
 const PORT = process.env.PORT || 3000;
 

@@ -38,7 +38,7 @@ sessionRouter.post('/end', async (req, res) => {
     const sessionId = req.body.sessionId;
 
     try {
-        const session = await Session.findOneAndUpdate({_id: sessionId}, {isActive: false});
+        const session = await Session.findByIdAndUpdate(sessionId, {isActive: false}, {new: true});
         res.status(200).json(session);
     } catch (error) {
         res.status(400).json({message: error.message});
@@ -50,7 +50,7 @@ sessionRouter.post('/addContributor', async (req, res) => {
     const username = req.body.username;
     
     try {
-        const session = await Session.findOneAndUpdate({_id: sessionId}, {$push: {contributors: username}});
+        const session = await Session.findByIdAndUpdate(sessionId, {$push: {contributors: username}}, {new: true});
         res.status(200).json(session);
     } catch (error) {
         res.status(400).json({message: error.message});
@@ -58,15 +58,11 @@ sessionRouter.post('/addContributor', async (req, res) => {
 })
 
 sessionRouter.post('/update', async (req, res) => {
-
-    const filter = {
-        sessionId: req.body.sessionId
-    }
-
+    const sessionId = req.body.sessionId;
     const update = req.body.fields;
 
     try {
-        const user = await Session.findOneAndUpdate(filter, update);
+        const user = await Session.findByIdAndUpdate(sessionId, update, {new: true});
         res.status(200).json(user);
     } catch (error) {
         res.status(400).json({message: error.message});

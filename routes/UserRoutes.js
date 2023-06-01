@@ -1,6 +1,5 @@
 const express = require('express');
 const User = require('../models/User');
-const Notification = require('../models/Notification');
 
 const userRouter = express.Router();
 
@@ -103,43 +102,6 @@ userRouter.post('/endSessionForAll', async (req, res) => {
 
     try {
         const user = await User.updateMany({username: {$in: contributors}}, {hasActiveSession: false}, {new: true});
-        res.status(200).json(user);
-    } catch (error) {
-        res.status(400).json({message: error.message});
-    }
-})
-
-userRouter.post('/sendNotification', async (req, res) => {
-    const receiverUsername = req.body.receiverUsername;
-    const type = req.body.type;
-    const senderFirstName = req.body.senderFirstName;
-    const senderLastName = req.body.senderLastName;
-    const senderUsername = req.body.senderUsername;
-    const details = req.body.details;
-
-    const notification = new Notification({
-        type: type,
-        senderFirstName: senderFirstName,
-        senderLastName: senderLastName,
-        senderUsername: senderUsername,
-        details: details
-    });
-
-    try {
-        if (!(type == "friend" || type == "invite")) throw {message: "Invalid type"};
-        const user = await User.findOneAndUpdate({username: receiverUsername}, {$push: {notifications: notification}}, {new: true});
-        res.status(200).json(notification);
-    } catch (error) {
-        res.status(400).json({message: error.message});
-    }
-})
-
-userRouter.post('/deleteNotification', async (req, res) => {
-    const username = req.body.username;
-    const notificationId = req.body.notificationId;
-
-    try {
-        const user = await User.findOneAndUpdate({username: username}, {$pull: {notifications: {_id: notificationId}}}, {new: true});
         res.status(200).json(user);
     } catch (error) {
         res.status(400).json({message: error.message});
