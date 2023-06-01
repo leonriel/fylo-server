@@ -108,18 +108,25 @@ friendRequestRouter.post('/setStatusCanceled', async (req, res) => {
     }
 });
 
+// Deletes all friend requests between two users (regardless of sender and receiver) and 
+// should only be called if a user removes a friend
 friendRequestRouter.post('/delete', async (req, res) => {
-    const sender = req.body.sender;
-    const receiver = req.body.receiver;
+    const username = req.body.username;
+    const friend = req.body.friend;
 
-    const filter = {
-        sender: sender,
-        receiver: receiver
+    const filter1 = {
+        sender: username,
+        receiver: friend
+    }
+
+    const filter2 = {
+        sender: friend,
+        receiver: username
     }
 
     try {
-        const request = await FriendRequest.findOneAndDelete(filter);
-        res.status(200).json(request);
+        const resp = await FriendRequest.deleteMany({$or: [filter1, filter2]});
+        res.status(200).json(resp);
     } catch (error) {
         res.status(400).json(error.message);
     }

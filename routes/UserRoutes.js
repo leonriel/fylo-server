@@ -108,25 +108,37 @@ userRouter.post('/endSessionForAll', async (req, res) => {
     }
 })
 
-userRouter.post('/addFriend', async (req, res) => {
+// Adds friends to each others' friends lists
+userRouter.post('/addFriendMutually', async (req, res) => {
     const username = req.body.username;
     const friend = req.body.friend;
 
     try {
-        const user = await User.findOneAndUpdate({username: username}, {$push: {friends: friend}}, {new :true});
-        res.status(200).json(user);
+        const resp = await User.bulkWrite([{
+            updateOne: {
+                filter: {username: username},
+                update: {$addToSet: {friends: friend}}
+            }
+        }, {
+            updateOne: {
+                filter: {username: friend},
+                update: {$addToSet: {friends: username}}
+            }
+        }]);
+        res.status(200).json(resp);
     } catch (error) {
         res.status(400).json({message: error.message});
     }
 })
 
-userRouter.post('/removeFriend', async (req, res) => {
+// Removes friends from the corresponding users' friends lists
+userRouter.post('/removeFriendMutually', async (req, res) => {
     const username = req.body.username;
     const friend = req.body.friend;
 
     try {
-        const user = await User.findOneAndUpdate({username: username}, {$pull: {friends: friend}}, {new: true});
-        res.status(200).json(user);
+        const resp = await User.updateMany({username: {$in: [username, friend]}}, {$pull: {friends: {$in: [username, friend]}}}, {new: true});
+        res.status(200).json(resp);
     } catch (error) {
         res.status(400).json({message: error.message});
     }
