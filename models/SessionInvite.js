@@ -2,14 +2,14 @@ const mongoose = require('mongoose');
 
 const sessionInviteSchema = mongoose.Schema({
     sender: {
-        type: String,
+        type: mongoose.ObjectId,
         required: true
     },
-    receiver: {
-        type: String,
+    recipient: {
+        type: mongoose.ObjectId,
         required: true
     },
-    sessionId: {
+    session: {
         type: mongoose.ObjectId,
         required: true
     },

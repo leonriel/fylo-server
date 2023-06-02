@@ -24,46 +24,46 @@ sessionRouter.post('/create', async (req, res) => {
 })
 
 sessionRouter.post('/getMany', async (req, res) => {
-    const sessionIds = req.body.sessionIds;
+    const sessions = req.body.sessions;
 
     try {
-        const sessions = await Session.find({_id: {$in: sessionIds}});
-        res.status(200).json(sessions);
+        const retrievedSessions = await Session.find({_id: {$in: sessions}});
+        res.status(200).json(retrievedSessions);
     } catch (error) {
         res.status(400),json({message: error.message});
     }
 })
 
 sessionRouter.post('/end', async (req, res) => {
-    const sessionId = req.body.sessionId;
+    const session = req.body.session;
 
     try {
-        const session = await Session.findByIdAndUpdate(sessionId, {isActive: false}, {new: true});
-        res.status(200).json(session);
+        const retrievedSession = await Session.findByIdAndUpdate(session, {isActive: false}, {new: true});
+        res.status(200).json(retrievedSession);
     } catch (error) {
         res.status(400).json({message: error.message});
     }
 })
 
 sessionRouter.post('/addContributor', async (req, res) => {
-    const sessionId = req.body.sessionId;
-    const username = req.body.username;
+    const session = req.body.session;
+    const user = req.body.user;
     
     try {
-        const session = await Session.findByIdAndUpdate(sessionId, {$push: {contributors: username}}, {new: true});
-        res.status(200).json(session);
+        const retrievedSession = await Session.findByIdAndUpdate(session, {$push: {contributors: user}}, {new: true});
+        res.status(200).json(retrievedSession);
     } catch (error) {
         res.status(400).json({message: error.message});
     }
 })
 
 sessionRouter.post('/update', async (req, res) => {
-    const sessionId = req.body.sessionId;
+    const session = req.body.session;
     const update = req.body.fields;
 
     try {
-        const user = await Session.findByIdAndUpdate(sessionId, update, {new: true});
-        res.status(200).json(user);
+        const retrievedSession = await Session.findByIdAndUpdate(session, update, {new: true});
+        res.status(200).json(retrievedSession);
     } catch (error) {
         res.status(400).json({message: error.message});
     }

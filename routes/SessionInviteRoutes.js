@@ -6,8 +6,8 @@ const sessionInviteRouter = express.Router();
 sessionInviteRouter.post('/create', async (req, res) => {
     const invite = new SessionInvite({
         sender: req.body.sender,
-        receiver: req.body.receiver,
-        sessionId: req.body.sessionId,
+        recipient: req.body.recipient,
+        session: req.body.session,
         status: req.body.status
     })
 
@@ -31,10 +31,10 @@ sessionInviteRouter.post('/getPendingOutgoing', async (req, res) => {
 });
 
 sessionInviteRouter.post('/getPendingIncoming', async (req, res) => {
-    const receiver = req.body.receiver;
+    const recipient = req.body.recipient;
 
     try {
-        const invites = await SessionInvite.find({receiver: receiver, status: "pending"});
+        const invites = await SessionInvite.find({recipient: recipient, status: "pending"});
         res.status(200).json(invites);
     } catch (error) {
         res.status(400).json(error.message);
@@ -43,13 +43,13 @@ sessionInviteRouter.post('/getPendingIncoming', async (req, res) => {
 
 sessionInviteRouter.post('/setStatusPending', async (req, res) => {
     const sender = req.body.sender;
-    const receiver = req.body.receiver;
-    const sessionId = req.body.sessionId;
+    const recipient = req.body.recipient;
+    const session = req.body.session;
 
     const filter = {
         sender: sender,
-        receiver: receiver,
-        sessionId: sessionId
+        recipient: recipient,
+        session: session
     }
 
     try {
@@ -62,13 +62,13 @@ sessionInviteRouter.post('/setStatusPending', async (req, res) => {
 
 sessionInviteRouter.post('/setStatusAccepted', async (req, res) => {
     const sender = req.body.sender;
-    const receiver = req.body.receiver;
-    const sessionId = req.body.sessionId;
+    const recipient = req.body.recipient;
+    const session = req.body.session;
 
     const filter = {
         sender: sender,
-        receiver: receiver,
-        sessionId: sessionId
+        recipient: recipient,
+        session: session
     }
 
     try {
@@ -81,13 +81,13 @@ sessionInviteRouter.post('/setStatusAccepted', async (req, res) => {
 
 sessionInviteRouter.post('/setStatusIgnored', async (req, res) => {
     const sender = req.body.sender;
-    const receiver = req.body.receiver;
-    const sessionId = req.body.sessionId;
+    const recipient = req.body.recipient;
+    const session = req.body.session;
 
     const filter = {
         sender: sender,
-        receiver: receiver,
-        sessionId: sessionId
+        recipient: recipient,
+        session: session
     }
 
     try {
@@ -100,13 +100,13 @@ sessionInviteRouter.post('/setStatusIgnored', async (req, res) => {
 
 sessionInviteRouter.post('/setStatusCanceled', async (req, res) => {
     const sender = req.body.sender;
-    const receiver = req.body.receiver;
-    const sessionId = req.body.sessionId;
+    const recipient = req.body.recipient;
+    const session = req.body.session;
 
     const filter = {
         sender: sender,
-        receiver: receiver,
-        sessionId: sessionId
+        recipient: recipient,
+        session: session
     }
 
     try {
@@ -119,13 +119,13 @@ sessionInviteRouter.post('/setStatusCanceled', async (req, res) => {
 
 sessionInviteRouter.post('/delete', async (req, res) => {
     const sender = req.body.sender;
-    const receiver = req.body.receiver;
-    const sessionId = req.body.sessionId;
+    const recipient = req.body.recipient;
+    const session = req.body.session;
 
     const filter = {
         sender: sender,
-        receiver: receiver,
-        sessionId: sessionId
+        recipient: recipient,
+        session: session
     }
 
     try {

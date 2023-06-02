@@ -7,12 +7,12 @@ const sessionSchema = new mongoose.Schema({
     },
     owner: {
         required: true,
-        type: String
+        type: mongoose.ObjectId
     },
     contributors: {
         required: true,
-        type: [String], // Array of usernames
-        default: [] // Should at least contain the owner's username
+        type: [mongoose.ObjectId], // Array of userIds
+        default: [] // Should at least contain the owner's Id
         
     },
     isActive: {
