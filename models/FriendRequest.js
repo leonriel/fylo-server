@@ -16,7 +16,8 @@ const friendRequestSchema = mongoose.Schema({
         default: "pending"
     }
 }, {
-    collection: 'friendRequests'
+    collection: 'friendRequests',
+    timestamps: true
 });
 
 module.exports = mongoose.model("FriendRequest", friendRequestSchema);

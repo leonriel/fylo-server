@@ -15,21 +15,13 @@ const sessionSchema = new mongoose.Schema({
         default: [] // Should at least contain the owner's username
         
     },
-    startDate: {
-        required: true,
-        type: Date,
-        default: new Date()
-    },
-    endDate: {
-        required: true,
-        type: Date,
-        default: new Date()
-    },
     isActive: {
         required: true,
         type: Boolean,
         default: true
     },
+}, {
+    timestamps: true
 });
 
 module.exports = mongoose.model('Session', sessionSchema);

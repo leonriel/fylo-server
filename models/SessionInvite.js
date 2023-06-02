@@ -20,7 +20,8 @@ const sessionInviteSchema = mongoose.Schema({
         default: "pending"
     }
 }, {
-    collection: 'sessionInvites'
+    collection: 'sessionInvites',
+    timestamps: true
 });
 
 module.exports = mongoose.model("SessionInvite", sessionInviteSchema);
