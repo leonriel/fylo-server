@@ -56,7 +56,7 @@ userRouter.post('/search', async (req, res) => {
                 {fullName: {$regex: query, $options: 'i'}}
             ]
         },
-        "username firstName lastName fullName").limit(5);
+        "_id username firstName lastName fullName").limit(5);
         res.status(200).json(returnedUsers);
     } catch (error) {
         res.status(400).json({message: error.message});

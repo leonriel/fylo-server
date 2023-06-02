@@ -41,7 +41,7 @@ friendRequestRouter.post('/getPendingOutgoing', async (req, res) => {
                         "$lookup": {
                             "from": "users",
                             "localField": "recipient",
-                            "foreignField": "username",
+                            "foreignField": "_id",
                             "as": "recipient"
                         }
                     }, {
@@ -98,7 +98,7 @@ friendRequestRouter.post('/getPendingIncoming', async (req, res) => {
                         "$lookup": {
                             "from": "users",
                             "localField": "sender",
-                            "foreignField": "username",
+                            "foreignField": "_id",
                             "as": "sender"
                         }
                     }, {
@@ -209,17 +209,17 @@ friendRequestRouter.post('/setStatusCanceled', async (req, res) => {
 // Deletes all friend requests between two users (regardless of sender and recipient) and 
 // should only be called if a user removes a friend
 friendRequestRouter.post('/delete', async (req, res) => {
-    const username = req.body.username;
+    const user = req.body.user;
     const friend = req.body.friend;
 
     const filter1 = {
-        sender: username,
+        sender: user,
         recipient: friend
     }
 
     const filter2 = {
         sender: friend,
-        recipient: username
+        recipient: user
     }
 
     try {
