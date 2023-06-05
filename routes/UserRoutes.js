@@ -25,10 +25,10 @@ userRouter.post('/create', async (req, res) => {
 });
 
 userRouter.post('/getOne', async (req, res) => {
-    const user = req.body.user;
+    const username = req.body.username;
 
     try {
-        const retrievedUser = await User.findOne({username: user});
+        const retrievedUser = await User.findOne({username: username});
         res.status(200).json(retrievedUser);
     } catch (error) {
         res.status(400).json({message: error.message});
