@@ -63,6 +63,47 @@ userRouter.post('/search', async (req, res) => {
     }
 })
 
+userRouter.post('/globalSearch', async (req, res) => {
+    const query = req.body.query;
+
+    const aggregate = [
+        {
+            $search: {
+                index: "usersSearchIndex",
+                compound: {
+                    should: [
+                        {
+                            autocomplete: {
+                                path: "username",
+                                query: query
+                            }
+                        }, {
+                            autocomplete: {
+                                path: "fullName",
+                                query: query
+                            }
+                        }   
+                    ]
+                }
+            }
+        }, {
+            $project: {
+                fullName: 1,
+                firstName: 1,
+                lastName: 1,
+                username: 1
+            }
+        }
+    ];
+
+    try {
+        const returnedUsers = await User.aggregate(aggregate);
+        res.status(200).json(returnedUsers);
+    } catch (error) {
+        res.status(400).json({message: error.message});
+    }
+})
+
 userRouter.post('/addSession', async(req, res) => {
     const user = req.body.user;
     const session = req.body.session;
@@ -121,7 +162,7 @@ userRouter.post('/addFriendMutually', async (req, res) => {
             }
         }, {
             updateOne: {
-                filter: {user: friend},
+                filter: {_id: friend},
                 update: {$addToSet: {friends: user}}
             }
         }]);
@@ -142,7 +183,7 @@ userRouter.post('/removeFriendMutually', async (req, res) => {
     } catch (error) {
         res.status(400).json({message: error.message});
     }
-})
+});
 
 userRouter.post('/update', async (req, res) => {
 

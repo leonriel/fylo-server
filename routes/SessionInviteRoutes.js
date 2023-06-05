@@ -1,5 +1,8 @@
 const express = require('express');
 const SessionInvite = require('../models/SessionInvite');
+const Session = require('../models/Session');
+const User = require('../models/User');
+const mongoose = require('mongoose');
 
 const sessionInviteRouter = express.Router();
 
@@ -19,22 +22,130 @@ sessionInviteRouter.post('/create', async (req, res) => {
     }
 });
 
+// Should return users
 sessionInviteRouter.post('/getPendingOutgoing', async (req, res) => {
-    const sender = req.body.sender;
+    const session = new mongoose.Types.ObjectId(req.body.session);
+
+    const aggregate = [
+        {
+            "$match": {
+                "_id": session 
+            }
+        },
+        {
+            "$lookup": {
+                "from": "sessionInvites",
+                "pipeline": [
+                    {
+                        "$match": {
+                            "session": session,
+                            $expr: {
+                                $or: [
+                                    {status: "pending"},
+                                    {status: "ignored"}
+                                ]
+                            }
+                        }
+                    }, {
+                        "$lookup": {
+                            "from": "users",
+                            "localField": "recipient",
+                            "foreignField": "_id",
+                            "as": "recipient"
+                        }
+                    }, {
+                        "$unwind": "$recipient"
+                    }, {
+                        "$project": {
+                            "_id": "$recipient._id",
+                            "username": "$recipient.username",
+                            "fullName": "$recipient.fullName",
+                            "createdAt": 1
+                        }
+                    }, {
+                        "$sort": {
+                            "createdAt": -1
+                        }
+                    }
+                ],
+                "as": "recipient" 
+            }
+        }, {
+            "$project": {
+                "recipient": 1
+            }
+        }, {
+            $unwind: {
+                path: "$recipient",
+                preserveNullAndEmptyArrays: true
+            }
+        }
+    ]
 
     try {
-        const invites = await SessionInvite.find({sender: sender, status: "pending"});
+        const invites = await Session.aggregate(aggregate);
         res.status(200).json(invites);
     } catch (error) {
         res.status(400).json(error.message);
     }
 });
 
+// Should return sessions
 sessionInviteRouter.post('/getPendingIncoming', async (req, res) => {
-    const recipient = req.body.recipient;
+    const recipient = new mongoose.Types.ObjectId(req.body.recipient);
+
+    const aggregate = [
+        {
+            "$match": {
+                "_id": recipient
+            }
+        },
+        {
+            "$lookup": {
+                "from": "sessionInvites",
+                "pipeline": [
+                    {
+                        "$match": {
+                            "recipient": recipient,
+                            status: "pending"
+                        }
+                    }, {
+                        "$lookup": {
+                            "from": "sessions",
+                            "localField": "session",
+                            "foreignField": "_id",
+                            "as": "session"
+                        }
+                    }, {
+                        "$unwind": "$session"
+                    }, {
+                        "$project": {
+                            "_id": "$session._id",
+                            "name": "$session.name",
+                            "updatedAt": 1
+                        }
+                    }, {
+                        "$sort": {
+                            "updatedAt": -1
+                        }
+                    }
+                ],
+                "as": "session" 
+            }
+        }, {
+            "$project": {
+                "session": 1
+            }
+        }, {
+            $unwind: {
+                path: "$session",
+                preserveNullAndEmptyArrays: true
+            }
+        }
+    ]
 
     try {
-        const invites = await SessionInvite.find({recipient: recipient, status: "pending"});
+        const invites = await User.aggregate(aggregate);
         res.status(200).json(invites);
     } catch (error) {
         res.status(400).json(error.message);
@@ -42,12 +153,10 @@ sessionInviteRouter.post('/getPendingIncoming', async (req, res) => {
 });
 
 sessionInviteRouter.post('/setStatusPending', async (req, res) => {
-    const sender = req.body.sender;
     const recipient = req.body.recipient;
     const session = req.body.session;
 
     const filter = {
-        sender: sender,
         recipient: recipient,
         session: session
     }
@@ -61,12 +170,10 @@ sessionInviteRouter.post('/setStatusPending', async (req, res) => {
 });
 
 sessionInviteRouter.post('/setStatusAccepted', async (req, res) => {
-    const sender = req.body.sender;
     const recipient = req.body.recipient;
     const session = req.body.session;
 
     const filter = {
-        sender: sender,
         recipient: recipient,
         session: session
     }
@@ -80,12 +187,10 @@ sessionInviteRouter.post('/setStatusAccepted', async (req, res) => {
 });
 
 sessionInviteRouter.post('/setStatusIgnored', async (req, res) => {
-    const sender = req.body.sender;
     const recipient = req.body.recipient;
     const session = req.body.session;
 
     const filter = {
-        sender: sender,
         recipient: recipient,
         session: session
     }
@@ -99,12 +204,10 @@ sessionInviteRouter.post('/setStatusIgnored', async (req, res) => {
 });
 
 sessionInviteRouter.post('/setStatusCanceled', async (req, res) => {
-    const sender = req.body.sender;
     const recipient = req.body.recipient;
     const session = req.body.session;
 
     const filter = {
-        sender: sender,
         recipient: recipient,
         session: session
     }
@@ -118,12 +221,10 @@ sessionInviteRouter.post('/setStatusCanceled', async (req, res) => {
 });
 
 sessionInviteRouter.post('/delete', async (req, res) => {
-    const sender = req.body.sender;
     const recipient = req.body.recipient;
     const session = req.body.session;
 
     const filter = {
-        sender: sender,
         recipient: recipient,
         session: session
     }

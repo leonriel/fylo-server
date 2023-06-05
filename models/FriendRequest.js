@@ -20,4 +20,10 @@ const friendRequestSchema = mongoose.Schema({
     timestamps: true
 });
 
+friendRequestSchema.index({sender: 1, status: -1});
+friendRequestSchema.index({recipient: 1, status: -1});
+friendRequestSchema.index({updatedAt: -1});
+friendRequestSchema.index({createdAt: -1});
+friendRequestSchema.index({sender: 1, recipient: 1}, {unique: true});
+
 module.exports = mongoose.model("FriendRequest", friendRequestSchema);

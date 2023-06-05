@@ -1,6 +1,7 @@
 const express = require('express');
 const FriendRequest = require('../models/FriendRequest');
 const User = require('../models/User');
+const mongoose = require('mongoose');
 
 const friendRequestRouter = express.Router();
 
@@ -20,7 +21,7 @@ friendRequestRouter.post('/create', async (req, res) => {
 });
 
 friendRequestRouter.post('/getPendingOutgoing', async (req, res) => {
-    const sender = req.body.sender;
+    const sender = new mongoose.Types.ObjectId(req.body.sender);
 
     const aggregate = [
         {
@@ -51,11 +52,11 @@ friendRequestRouter.post('/getPendingOutgoing', async (req, res) => {
                             "_id": "$recipient._id",
                             "username": "$recipient.username",
                             "fullName": "$recipient.fullName",
-                            "createdAt": "$recipient.createdAt"
+                            "createdAt": 1
                         }
                     }, {
-                        "$sort": {
-                            "createdAt": -1
+                        $sort: {
+                            createdAt: -1
                         }
                     }
                 ],
@@ -64,6 +65,11 @@ friendRequestRouter.post('/getPendingOutgoing', async (req, res) => {
         }, {
             "$project": {
                 "recipient": 1
+            }
+        }, {
+            $unwind: {
+                path: "$recipient",
+                preserveNullAndEmptyArrays: true
             }
         }
     ]
@@ -77,7 +83,7 @@ friendRequestRouter.post('/getPendingOutgoing', async (req, res) => {
 });
 
 friendRequestRouter.post('/getPendingIncoming', async (req, res) => {
-    const recipient = req.body.recipient;
+    const recipient = new mongoose.Types.ObjectId(req.body.recipient);
 
     const aggregate = [
         {
@@ -108,11 +114,11 @@ friendRequestRouter.post('/getPendingIncoming', async (req, res) => {
                             "_id": "$sender._id",
                             "username": "$sender.username",
                             "fullName": "$sender.fullName",
-                            "createdAt": "$sender.createdAt"
+                            "updatedAt": 1
                         }
                     }, {
-                        "$sort": {
-                            "createdAt": -1
+                        $sort: {
+                            updatedAt: -1
                         }
                     }
                 ],
@@ -120,7 +126,7 @@ friendRequestRouter.post('/getPendingIncoming', async (req, res) => {
             }
         }, {
             "$project": {
-                "sender": 1
+                "sender": 1,
             }
         }, {
             $unwind: {
