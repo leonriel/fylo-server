@@ -1,5 +1,7 @@
 const express = require('express');
 const User = require('../models/User');
+const FriendRequest = require('../models/FriendRequest');
+const mongoose = require('mongoose');
 
 const userRouter = express.Router();
 
@@ -184,6 +186,34 @@ userRouter.post('/removeFriendMutually', async (req, res) => {
         res.status(400).json({message: error.message});
     }
 });
+
+userRouter.post('/removeFriend', async (req, res) => {
+    const user = req.body.user;
+    const friend = req.body.friend;
+
+    let mongoSession = null;
+
+    try {
+        mongoSession = await mongoose.startSession();
+        await mongoSession.withTransaction(async () => {
+            await User.findByIdAndUpdate(user, {$pull: {friends: friend}}).session(mongoSession);
+            await User.findByIdAndUpdate(friend, {$pull: {friends: user}}).session(mongoSession);
+
+            const filter = {
+                sender: {$in: [user, friend]},
+                recipient: {$in: [user, friend]}
+            }
+
+            const friendRequest = await FriendRequest.findOneAndDelete(filter).session(mongoSession);
+
+            res.status(200).json(friendRequest);
+        })
+    } catch (error) {
+        res.status(400).json(error.message);
+    } finally {
+        mongoSession.endSession();
+    }
+})
 
 userRouter.post('/update', async (req, res) => {
 

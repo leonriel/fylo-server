@@ -5,6 +5,9 @@ const mongoose = require('mongoose');
 
 const friendRequestRouter = express.Router();
 
+// There should never be a case where two users have sent friendrequests
+// to each other (i.e. there cannot exist two FriendRequest documents 
+// where the sender and recipient are the same but swapped)
 friendRequestRouter.post('/create', async (req, res) => {
     const request = new FriendRequest({
         sender: req.body.sender,
@@ -211,6 +214,35 @@ friendRequestRouter.post('/setStatusCanceled', async (req, res) => {
         res.status(400).json(error.message);
     }
 });
+
+friendRequestRouter.post('/accept', async (req, res) => {
+    const sender = req.body.sender;
+    const recipient = req.body.recipient;
+
+    let mongoSession = null;
+
+    try {
+        mongoSession = await mongoose.startSession();
+        await mongoSession.withTransaction(async () => {
+            const filter = {
+                sender: sender,
+                recipient: recipient
+            }
+
+            const friendRequest = await FriendRequest.findOneAndUpdate(filter, {status: "accepted"}, {new: true}).session(mongoSession);
+            await User.findByIdAndUpdate({_id: sender}, {$addToSet: {friends: recipient}}).session(mongoSession);
+            await User.findByIdAndUpdate({_id: recipient}, {$addToSet: {friends: sender}}).session(mongoSession);
+
+            res.status(200).json(friendRequest);
+
+            return friendRequest
+        });
+    } catch (error) {
+        res.status(400).json(error.message);
+    } finally {
+        mongoSession.endSession();
+    }
+})
 
 // Deletes all friend requests between two users (regardless of sender and recipient) and 
 // should only be called if a user removes a friend

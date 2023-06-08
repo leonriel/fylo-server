@@ -1,5 +1,9 @@
 const express = require('express');
 const Session = require('../models/Session');
+const User = require('../models/User');
+const mongoose = require('mongoose');
+
+// const db = require('../index');
 
 const sessionRouter = express.Router();
 
@@ -8,18 +12,47 @@ sessionRouter.post('/create', async (req, res) => {
     const isActive = req.body.isActive;
     const owner = req.body.owner;
 
-    const data = new Session({
-        name: name,
-        isActive: isActive,
-        owner: owner,
-        contributors: [owner]
-    });
+    let mongoSession = null;
+    let session = null;
 
     try {
-        const dataToSave = await data.save();
-        res.status(200).json(dataToSave);
+        mongoSession = await mongoose.startSession();
+        await mongoSession.withTransaction(async () => {
+            const user = await User.findById(owner).session(mongoSession);
+
+            if (user.hasActiveSession) {
+                throw {message: "User has active session"}
+            }
+
+            const data = new Session({
+                name: name,
+                isActive: isActive,
+                owner: owner,
+                contributors: [owner]
+            });
+
+            session = await data.save({ mongoSession });
+
+            user.hasActiveSession = true;
+
+            user.sessions.push(session._id);
+
+            await user.save();
+
+            // throw {message: "This is an error"}
+
+            res.status(200).json(session);
+
+            return session;
+        });
+
     } catch (error) {
-        res.status(400).json({message: error.message});
+        if (session) {
+            await Session.findByIdAndDelete(session._id);
+        }
+        res.status(400).json(error.message);
+    } finally {
+        mongoSession.endSession();
     }
 })
 
@@ -37,11 +70,25 @@ sessionRouter.post('/getMany', async (req, res) => {
 sessionRouter.post('/end', async (req, res) => {
     const session = req.body.session;
 
+    let mongoSession = null;
+
     try {
-        const retrievedSession = await Session.findByIdAndUpdate(session, {isActive: false}, {new: true});
-        res.status(200).json(retrievedSession);
+        mongoSession = await mongoose.startSession();
+        await mongoSession.withTransaction(async () => {
+            const retrievedSession = await Session.findByIdAndUpdate(session, {isActive: false}, {new: true}).session(mongoSession);
+
+            const contributors = retrievedSession.contributors;
+
+            await User.updateMany({_id: {$in: contributors}}, {hasActiveSession: false}).session(mongoSession);
+
+            res.status(200).json(retrievedSession);
+
+            return retrievedSession;
+        })
     } catch (error) {
         res.status(400).json({message: error.message});
+    } finally {
+        mongoSession.endSession();
     }
 })
 
@@ -55,6 +102,11 @@ sessionRouter.post('/addContributor', async (req, res) => {
     } catch (error) {
         res.status(400).json({message: error.message});
     }
+})
+
+sessionRouter.post('/leave', async (req, res) => {
+    // Need to decide what permissions users still ahve if they leave
+    // Need to decide logic if the owner leaves... probably just randomly assign a new owner
 })
 
 sessionRouter.post('/update', async (req, res) => {

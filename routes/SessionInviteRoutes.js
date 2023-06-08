@@ -220,6 +220,35 @@ sessionInviteRouter.post('/setStatusCanceled', async (req, res) => {
     }
 });
 
+sessionInviteRouter.post('/accept', async (req, res) => {
+    const recipient = req.body.recipient;
+    const session = req.body.session;
+
+    let mongoSession = null;
+
+    try {
+        mongoSession = await mongoose.startSession();
+        await mongoSession.withTransaction(async () => {
+            const filter = {
+                recipient: recipient,
+                session: session
+            }
+
+            const sessionInvite = await SessionInvite.findOneAndUpdate(filter, {status: "accepted"}, {new: true}).session(mongoSession);
+            await User.findByIdAndUpdate({_id: recipient}, {$addToSet: {sessions: session}}).session(mongoSession);
+            await Session.findByIdAndUpdate({_id: session}, {$addToSet: {contributors: recipient}}).session(mongoSession);
+
+            res.status(200).json(sessionInvite);
+
+            return sessionInvite;
+        });
+    } catch (error) {
+        res.status(400).json(error.message);
+    } finally {
+        mongoSession.endSession();
+    }
+})
+
 sessionInviteRouter.post('/delete', async (req, res) => {
     const recipient = req.body.recipient;
     const session = req.body.session;
