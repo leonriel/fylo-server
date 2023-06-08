@@ -134,7 +134,7 @@ friendRequestRouter.post('/getPendingIncoming', async (req, res) => {
         }, {
             $unwind: {
                 path: "$sender",
-                preserveNullAndEmptyArrays: true
+                preserveNullAndEmptyArrays: false
             }
         }
     ]

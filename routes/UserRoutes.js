@@ -187,6 +187,7 @@ userRouter.post('/removeFriendMutually', async (req, res) => {
     }
 });
 
+// Replaces /removeFriendMutually
 userRouter.post('/removeFriend', async (req, res) => {
     const user = req.body.user;
     const friend = req.body.friend;
