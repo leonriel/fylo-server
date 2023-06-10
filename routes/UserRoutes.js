@@ -10,12 +10,18 @@ userRouter.post('/create', async (req, res) => {
     const firstName = req.body.firstName.charAt(0).toUpperCase() + req.body.firstName.slice(1);
     const lastName = req.body.lastName.charAt(0).toUpperCase() + req.body.lastName.slice(1);
     const fullName = firstName + " " + lastName;
+    const email = req.body.email.toLowerCase();
+    const phoneNumber = req.body.phoneNumber;
+    const cognitoUserSub = req.body.cognitoUserSub;
 
     const data = new User({
         username: username,
         firstName: firstName,
         lastName: lastName,
-        fullName: fullName
+        fullName: fullName,
+        email: email,
+        phoneNumber: phoneNumber,
+        cognitoUserSub: cognitoUserSub
     });
 
     try {
@@ -35,7 +41,18 @@ userRouter.post('/getOne', async (req, res) => {
     } catch (error) {
         res.status(400).json({message: error.message});
     }
-})
+});
+
+userRouter.post('/getOneWithSub', async (req, res) => {
+    const cognitoUserSub = req.body.cognitoUserSub;
+
+    try {
+        const retrievedUser = await User.findOne({cognitoUserSub: cognitoUserSub});
+        res.status(200).json(retrievedUser);
+    } catch (error) {
+        res.status(400).json({message: error.message});
+    }
+});
 
 userRouter.post('/getMany', async (req, res) => {
     const users = req.body.users;
