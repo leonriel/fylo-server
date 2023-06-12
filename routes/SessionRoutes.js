@@ -39,7 +39,6 @@ sessionRouter.post('/create', async (req, res) => {
 
             await user.save();
 
-            // throw {message: "This is an error"}
 
             res.status(200).json(session);
 

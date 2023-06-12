@@ -221,6 +221,7 @@ sessionInviteRouter.post('/setStatusCanceled', async (req, res) => {
 });
 
 sessionInviteRouter.post('/accept', async (req, res) => {
+    const sender = req.body.sender;
     const recipient = req.body.recipient;
     const session = req.body.session;
 
@@ -229,13 +230,28 @@ sessionInviteRouter.post('/accept', async (req, res) => {
     try {
         mongoSession = await mongoose.startSession();
         await mongoSession.withTransaction(async () => {
+            const user = await User.findById(recipient).session(mongoSession);
+
+            if (user.hasActiveSession) {
+                throw new Error("User has ongoing session.")
+            }
+
+            if (user.sessions.includes(session)) {
+                throw new Error("User is already in session.")
+            }
+
             const filter = {
+                sender: sender,
                 recipient: recipient,
                 session: session
             }
 
             const sessionInvite = await SessionInvite.findOneAndUpdate(filter, {status: "accepted"}, {new: true}).session(mongoSession);
-            await User.findByIdAndUpdate({_id: recipient}, {$addToSet: {sessions: session}}).session(mongoSession);
+
+            user.sessions.push(session);
+            user.hasActiveSession = true;
+            await user.save();
+
             await Session.findByIdAndUpdate({_id: session}, {$addToSet: {contributors: recipient}}).session(mongoSession);
 
             res.status(200).json(sessionInvite);
