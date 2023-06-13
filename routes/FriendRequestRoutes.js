@@ -72,7 +72,7 @@ friendRequestRouter.post('/getPendingOutgoing', async (req, res) => {
         }, {
             $unwind: {
                 path: "$recipient",
-                preserveNullAndEmptyArrays: true
+                preserveNullAndEmptyArrays: false
             }
         }
     ]

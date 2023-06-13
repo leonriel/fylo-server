@@ -6,12 +6,15 @@ const mongoose = require('mongoose');
 
 const sessionInviteRouter = express.Router();
 
+// Ideally prevent duplicates
 sessionInviteRouter.post('/create', async (req, res) => {
+    const { sender, recipient, session, status } = req.body;
+
     const invite = new SessionInvite({
-        sender: req.body.sender,
-        recipient: req.body.recipient,
-        session: req.body.session,
-        status: req.body.status
+        sender: sender,
+        recipient: recipient,
+        session: session,
+        status: status
     })
 
     try {
@@ -39,12 +42,10 @@ sessionInviteRouter.post('/getPendingOutgoing', async (req, res) => {
                     {
                         "$match": {
                             "session": session,
-                            $expr: {
-                                $or: [
-                                    {status: "pending"},
-                                    {status: "ignored"}
-                                ]
-                            }
+                            $or: [
+                                {status: "pending"},
+                                {status: "ignored"}
+                            ]
                         }
                     }, {
                         "$lookup": {
@@ -77,7 +78,7 @@ sessionInviteRouter.post('/getPendingOutgoing', async (req, res) => {
         }, {
             $unwind: {
                 path: "$recipient",
-                preserveNullAndEmptyArrays: true
+                preserveNullAndEmptyArrays: false
             }
         }
     ]
@@ -122,6 +123,7 @@ sessionInviteRouter.post('/getPendingIncoming', async (req, res) => {
                         "$project": {
                             "_id": "$session._id",
                             "name": "$session.name",
+                            "contributors": "$session.contributors",
                             "updatedAt": 1
                         }
                     }, {
@@ -139,7 +141,7 @@ sessionInviteRouter.post('/getPendingIncoming', async (req, res) => {
         }, {
             $unwind: {
                 path: "$session",
-                preserveNullAndEmptyArrays: true
+                preserveNullAndEmptyArrays: false
             }
         }
     ]

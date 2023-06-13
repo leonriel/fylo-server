@@ -6,11 +6,11 @@ const mongoose = require('mongoose');
 const userRouter = express.Router();
 
 userRouter.post('/create', async (req, res) => {
-    const username = req.body.username.toLowerCase();
+    const username = req.body.username;
     const firstName = req.body.firstName.charAt(0).toUpperCase() + req.body.firstName.slice(1);
     const lastName = req.body.lastName.charAt(0).toUpperCase() + req.body.lastName.slice(1);
     const fullName = firstName + " " + lastName;
-    const email = req.body.email.toLowerCase();
+    const email = req.body.email;
     const phoneNumber = req.body.phoneNumber;
     const cognitoUserSub = req.body.cognitoUserSub;
 
