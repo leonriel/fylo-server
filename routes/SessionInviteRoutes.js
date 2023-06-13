@@ -61,6 +61,8 @@ sessionInviteRouter.post('/getPendingOutgoing', async (req, res) => {
                             "_id": "$recipient._id",
                             "username": "$recipient.username",
                             "fullName": "$recipient.fullName",
+                            "firstName": "$recipient.firstName",
+                            "lastName": "$recipient.lastName",
                             "createdAt": 1
                         }
                     }, {
