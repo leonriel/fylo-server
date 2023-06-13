@@ -68,23 +68,6 @@ userRouter.post('/getMany', async (req, res) => {
 userRouter.post('/search', async (req, res) => {
     const query = req.body.query;
 
-    try {
-        const returnedUsers = await User.find({
-            $or: [
-                {username: {$regex: query, $options: 'i'}},
-                {fullName: {$regex: query, $options: 'i'}}
-            ]
-        },
-        "_id username firstName lastName fullName").limit(5);
-        res.status(200).json(returnedUsers);
-    } catch (error) {
-        res.status(400).json({message: error.message});
-    }
-})
-
-userRouter.post('/globalSearch', async (req, res) => {
-    const query = req.body.query;
-
     const aggregate = [
         {
             $search: {
