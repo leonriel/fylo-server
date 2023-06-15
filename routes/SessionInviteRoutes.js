@@ -191,10 +191,12 @@ sessionInviteRouter.post('/setStatusAccepted', async (req, res) => {
 });
 
 sessionInviteRouter.post('/setStatusIgnored', async (req, res) => {
+    const sender = req.body.sender;
     const recipient = req.body.recipient;
     const session = req.body.session;
 
     const filter = {
+        sender: sender,
         recipient: recipient,
         session: session
     }
