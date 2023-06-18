@@ -112,7 +112,8 @@ sessionInviteRouter.post('/getPendingIncoming', async (req, res) => {
                             "recipient": recipient,
                             status: "pending"
                         }
-                    }, {
+                    }, 
+                    {
                         "$lookup": {
                             "from": "sessions",
                             "localField": "session",
@@ -126,6 +127,7 @@ sessionInviteRouter.post('/getPendingIncoming', async (req, res) => {
                             "_id": "$session._id",
                             "name": "$session.name",
                             "contributors": "$session.contributors",
+                            "sender": 1,
                             "updatedAt": 1
                         }
                     }, {
