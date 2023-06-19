@@ -15,6 +15,23 @@ const sessionSchema = new mongoose.Schema({
         default: [] // Should at least contain the owner's Id
         
     },
+    photos: {
+        required: true,
+        type: [new mongoose.Schema({
+            key: {
+                required: true,
+                unique: true,
+                type: String
+            },
+            owner: {
+                required: true,
+                type: mongoose.ObjectId
+            }
+        }, {
+            timestamps: true
+        })],
+        default: []
+    },
     isActive: {
         required: true,
         type: Boolean,

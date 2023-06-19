@@ -120,4 +120,63 @@ sessionRouter.post('/update', async (req, res) => {
     }
 })
 
+sessionRouter.post('/addPhoto', async (req, res) => {
+    const session = req.body.session;
+    const key = req.body.key;
+    const owner = req.body.owner;
+
+    try {
+        const retrievedSession = await Session.findById(session);
+
+        if (!retrievedSession.contributors.includes(owner)) {
+            throw new Error("User does not have permission to add to this session.");
+        }
+
+        retrievedSession.photos.push({key: key, owner: owner});
+
+        const newSession = await retrievedSession.save();
+
+        res.status(200).json(newSession);
+    } catch (error) {
+        res.status(400).json({message: error.message});
+    }  
+});
+
+sessionRouter.post('/removePhoto', async (req, res) => {
+    const session = req.body.session;
+    const key = req.body.key;
+    const owner = req.body.owner;
+
+    try {
+        const retrievedSession = await Session.findById(session);
+
+        let index = -1;
+
+        const photo = retrievedSession.photos.filter((photo, index) => {
+            if (photo.key == key) {
+                index = index;
+                return true;
+            }
+
+            return false
+        })[0];
+
+        if (!photo) {
+            throw new Error("Photo is not in this album.");
+        }
+
+        if (owner != retrievedSession.owner && owner != photo.owner) {
+            throw new Error("User does not have permission to remove this photo.");
+        }
+
+        retrievedSession.photos.splice(index, 1);
+
+        const newSession = await retrievedSession.save();
+
+        res.status(200).json(newSession);
+    } catch (error) {
+        res.status(400).json({message: error.message});
+    }
+})
+
 module.exports = sessionRouter;
