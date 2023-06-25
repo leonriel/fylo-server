@@ -65,6 +65,15 @@ userRouter.post('/getMany', async (req, res) => {
     }
 })
 
+userRouter.post('/list', async (req, res) => {
+    try {
+        const returnedUsers = await User.find({}, 'username firstName lastName fullName phoneNumber email');
+        res.status(200).json(returnedUsers);
+    } catch (error) {
+        res.status(400).json({message: error.message});
+    }
+})
+
 userRouter.post('/search', async (req, res) => {
     const query = req.body.query;
 
