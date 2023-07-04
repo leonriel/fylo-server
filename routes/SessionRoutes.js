@@ -59,10 +59,10 @@ sessionRouter.post('/getMany', async (req, res) => {
     const sessions = req.body.sessions;
 
     try {
-        const retrievedSessions = await Session.find({_id: {$in: sessions}});
+        const retrievedSessions = await Session.find({_id: {$in: sessions}}).sort({isActive: -1, updatedAt: -1});
         res.status(200).json(retrievedSessions);
     } catch (error) {
-        res.status(400),json({message: error.message});
+        res.status(400).json({message: error.message});
     }
 })
 
