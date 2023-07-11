@@ -119,6 +119,8 @@ friendRequestRouter.post('/getPendingIncoming', async (req, res) => {
                             "_id": "$sender._id",
                             "username": "$sender.username",
                             "fullName": "$sender.fullName",
+                            "firstName": "$sender.firstName",
+                            "lastName": "$sender.lastName",
                             "updatedAt": 1
                         }
                     }, {
