@@ -39,7 +39,10 @@ friendRequestRouter.post('/getPendingOutgoing', async (req, res) => {
                     {
                         "$match": {
                             "sender": sender,
-                            "status": "pending"
+                            $or: [
+                                {status: "pending"},
+                                {status: "ignored"}
+                            ]
                         }
                     }, {
                         "$lookup": {
