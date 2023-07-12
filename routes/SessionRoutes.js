@@ -96,7 +96,24 @@ sessionRouter.post('/addContributor', async (req, res) => {
     const user = req.body.user;
     
     try {
-        const retrievedSession = await Session.findByIdAndUpdate(session, {$push: {contributors: user}}, {new: true});
+        const retrievedSession = await Session.findByIdAndUpdate(session, {$addToSet: {contributors: user}}, {new: true});
+        res.status(200).json(retrievedSession);
+    } catch (error) {
+        res.status(400).json({message: error.message});
+    }
+})
+
+sessionRouter.post('/removeContributor', async (req, res) => {
+    const user = req.body.user;
+    const session = req.body.session;
+    const contributor = req.body.contributor;
+
+    try {
+        if (user != session.owner) {
+            throw new Error("Invalid permissions.")
+        }
+
+        const retrievedSession = await Session.findByIdAndUpdate(session, {$pull: {contributors: contributor}}, {new: true});
         res.status(200).json(retrievedSession);
     } catch (error) {
         res.status(400).json({message: error.message});
