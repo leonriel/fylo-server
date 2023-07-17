@@ -26,6 +26,12 @@ const sessionSchema = new mongoose.Schema({
             owner: {
                 required: true,
                 type: mongoose.ObjectId
+            },
+            type: {
+                required: true,
+                type: String,
+                enum: ["image", "video"],
+                default: "image"
             }
         }, {
             timestamps: true

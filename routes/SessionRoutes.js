@@ -106,10 +106,11 @@ sessionRouter.post('/addContributor', async (req, res) => {
 sessionRouter.post('/removeContributor', async (req, res) => {
     const user = req.body.user;
     const session = req.body.session;
+    const owner = req.body.owner;
     const contributor = req.body.contributor;
 
     try {
-        if (user != session.owner) {
+        if (user != owner) {
             throw new Error("Invalid permissions.")
         }
 
@@ -141,6 +142,7 @@ sessionRouter.post('/addPhoto', async (req, res) => {
     const session = req.body.session;
     const key = req.body.key;
     const owner = req.body.owner;
+    const type = req.body.type;
 
     try {
         const retrievedSession = await Session.findById(session);
@@ -149,7 +151,7 @@ sessionRouter.post('/addPhoto', async (req, res) => {
             throw new Error("User does not have permission to add to this session.");
         }
 
-        retrievedSession.photos.splice(0, 0, {key: key, owner: owner});
+        retrievedSession.photos.splice(0, 0, {key: key, owner: owner, type: type});
 
         const newSession = await retrievedSession.save();
 
