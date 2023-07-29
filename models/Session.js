@@ -21,6 +21,7 @@ const sessionSchema = new mongoose.Schema({
             key: {
                 required: true,
                 unique: true,
+                sparse: true,
                 type: String
             },
             owner: {
