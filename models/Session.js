@@ -33,6 +33,9 @@ const sessionSchema = new mongoose.Schema({
                 type: String,
                 enum: ["image", "video"],
                 default: "image"
+            },
+            thumbnail: {
+                type: String
             }
         }, {
             timestamps: true
