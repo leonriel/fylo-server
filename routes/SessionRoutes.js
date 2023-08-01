@@ -143,6 +143,7 @@ sessionRouter.post('/addPhoto', async (req, res) => {
     const key = req.body.key;
     const owner = req.body.owner;
     const type = req.body.type;
+    const thumbnail = req.body.thumbnail;
 
     try {
         const retrievedSession = await Session.findById(session);
@@ -151,7 +152,7 @@ sessionRouter.post('/addPhoto', async (req, res) => {
             throw new Error("User does not have permission to add to this session.");
         }
 
-        retrievedSession.photos.splice(0, 0, {key: key, owner: owner, type: type});
+        retrievedSession.photos.splice(0, 0, {key: key, owner: owner, type: type, thumbnail: thumbnail});
 
         const newSession = await retrievedSession.save();
 
