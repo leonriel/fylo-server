@@ -122,8 +122,13 @@ sessionRouter.post('/removeContributor', async (req, res) => {
 })
 
 sessionRouter.post('/leave', async (req, res) => {
-    // Need to decide what permissions users still ahve if they leave
-    // Need to decide logic if the owner leaves... probably just randomly assign a new owner
+    const user = req.body.user;
+
+    try {
+        
+    } catch (error) {
+        
+    }
 })
 
 sessionRouter.post('/update', async (req, res) => {
@@ -170,11 +175,8 @@ sessionRouter.post('/removePhoto', async (req, res) => {
     try {
         const retrievedSession = await Session.findById(session);
 
-        let index = -1;
-
         const photo = retrievedSession.photos.filter((photo, index) => {
             if (photo.key == key) {
-                index = index;
                 return true;
             }
 
@@ -188,6 +190,8 @@ sessionRouter.post('/removePhoto', async (req, res) => {
         if (owner != retrievedSession.owner && owner != photo.owner) {
             throw new Error("User does not have permission to remove this photo.");
         }
+
+        const index = retrievedSession.photos.indexOf(photo);
 
         retrievedSession.photos.splice(index, 1);
 
